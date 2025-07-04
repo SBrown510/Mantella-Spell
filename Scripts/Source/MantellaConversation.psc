@@ -69,11 +69,6 @@ endEvent
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 function StartConversation(Actor[] actorsToStartConversationWith)
-    if(actorsToStartConversationWith.Length > 2)
-        Debug.Notification("Cannot start conversation. Conversation is already running.")
-        return
-    endIf
-
     int handle = SKSE_HTTP.createDictionary()
     SKSE_HTTP.setString(handle, mConsts.KEY_REQUESTTYPE, mConsts.KEY_REQUESTTYPE_INIT)
     ; send request to initialize Mantella settings (set LLM connection, start up TTS service, load character_df etc) 
@@ -116,6 +111,7 @@ function StartConversation(Actor[] actorsToStartConversationWith)
     if (eventHandle)        
         ModEvent.Send(eventHandle)
     endIf 
+    MantellaVanillaDialogue.notifyConversationStart()
 endFunction
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -394,6 +390,7 @@ Function CleanupConversation()
     if (handle)        
         ModEvent.Send(handle)
     endIf 
+    MantellaVanillaDialogue.notifyConversationEnd()
     Debug.Notification("Conversation ended.")  
     Stop()
 EndFunction
@@ -582,6 +579,7 @@ Function SendActorAddedEvents(Form[] actorsAdded)
         EndIf
         index += 1
     EndWhile
+    MantellaVanillaDialogue.notifyNpcAdded(actorsAdded)
 EndFunction
 
 Function SendActorRemovedEvents(Form[] actorsRemoved)
@@ -595,6 +593,7 @@ Function SendActorRemovedEvents(Form[] actorsRemoved)
         endIf 
         index += 1
     EndWhile
+    MantellaVanillaDialogue.notifyNpcRemoved(actorsRemoved)
 EndFunction
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

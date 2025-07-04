@@ -16,6 +16,7 @@ Faction Property giafac_AllowDialogue  Auto ;gia
 Faction Property giafac_Following  Auto ;gia
 Faction Property giafac_Mantella  Auto ;gia
 quest property gia_FollowerQst auto ;gia
+MantellaListenerScript Property ListenerScript Auto
 
 
 bool property microphoneEnabled auto
@@ -92,7 +93,7 @@ bool property targetEquipmentAmulet auto
 bool property targetEquipmentRightHand auto
 bool property targetEquipmentLeftHand auto
 
-
+bool property enableVanillaDialogueAwareness auto
 bool property AllowForNPCtoFollow auto ;gia
 ;bool property followingNPCsit auto ;gia
 ;bool property followingNPCsleep auto ;gia
@@ -124,6 +125,9 @@ endEvent
 ; and add the corresponding default value here in a block corresponding to the version number like the examples below
 ; Doing it like this will only assign the defaul values to settings that haven't been initialised prior.
 function assignDefaultSettings(int lastVersion, bool isFirstInit = false)
+    If (lastVersion < 7 || isFirstInit)
+        enableVanillaDialogueAwareness = true
+    EndIf
     If (lastVersion < 6 || isFirstInit)
         NPCInventory = false
     EndIf
@@ -281,6 +285,8 @@ Event OnKeyDown(int KeyCode)
             if (targetRef) ;If we have a target under the crosshair, cast sepll on it
                 MantellaSpell.cast(PlayerRef, targetRef)
                 ;Utility.Wait(0.5)
+            Else
+                ListenerScript.StartGroupConversation()
             endIf        
         elseIf KeyCode == MantellaListenerTextHotkey
             If(!microphoneEnabled) ;Otherwise, try to open player text input if microphone is off
