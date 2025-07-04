@@ -21,6 +21,7 @@ int property oid_radiantdistance auto
 int property oid_radiantfrequency auto
 int property oid_showRadiantDialogueMessages auto
 
+int property oid_adventureEnabled auto
 
 int property oid_playerCharacterDescription1 auto
 int property oid_playerCharacterDescription2 auto
@@ -241,6 +242,8 @@ Event OnOptionHighlight (Int optionID)
     elseIf optionID == oid_showDialogueItems	
 		SetInfoText("Show the dialogue tree entries to start a conversation or add and remove NPCs from it.")
 
+	elseif optionID == oid_adventureEnabled
+		SetInfoText("Enables NPC followers to start a conversation with the player at a given frequency.")
 	elseIf optionID == oid_radiantenabled
 		SetInfoText("Starts a Mantella conversation between the nearest two NPCs to the player at a given frequency. \nNPCs must both be stationary when a radiant dialogue attempt is made.")
 	elseIf optionID == oid_radiantdistance

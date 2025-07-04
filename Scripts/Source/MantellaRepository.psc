@@ -36,6 +36,9 @@ float property radiantDistance auto
 float property radiantFrequency auto
 bool property showRadiantDialogueMessages auto
 
+bool property adventureEnabled auto
+bool Property npcToPlayerConv Auto
+
 string property playerCharacterDescription1 auto
 string property playerCharacterDescription2 auto
 bool property playerCharacterUsePlayerDescription2 auto
@@ -155,6 +158,8 @@ function assignDefaultSettings(int lastVersion, bool isFirstInit = false)
         radiantDistance = 20
         radiantFrequency = 10
 
+        adventureEnabled = false
+        npcToPlayerConv = false
 
         playerCharacterDescription1 = ""
         playerCharacterDescription2 = ""
@@ -310,10 +315,12 @@ Event OnKeyDown(int KeyCode)
         elseIf KeyCode == MantellaRadiantHotkey
             radiantEnabled =! radiantEnabled
             if radiantEnabled == True
+                adventureEnabled = False
                 Debug.Notification("Radiant Dialogue enabled.")
             else
                 Debug.Notification("Radiant Dialogue disabled.")
             endIf
         endIf
+        ;add adventure dialogue hotkey
     endIf
 endEvent
