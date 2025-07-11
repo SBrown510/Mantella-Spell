@@ -131,13 +131,10 @@ event OnUpdate()
     if repository.radiantEnabled
         tryRadiantDialogue()
     elseif repository.adventureEnabled
-        ;int roll = Utility.RandomInt(0, 1) ; 0 = radiant, 1 = adventure
-        ;if roll == 0
-        ;    TryStartRadiantDialogue()
-        ;else
-        ;    TryStartadventureEnabled()
-        ;endif
-        tryadventureEnabled()
+        int roll = Utility.RandomInt(0, 1) ; 0 = adventure, 1 = Do nothing; to be fleshed out with some chatty attribute that can be set for NPCs
+        if roll == 0
+            tryadventureEnabled()
+        endif
     endIf
     RegisterForSingleUpdate(repository.radiantFrequency)
 endEvent
