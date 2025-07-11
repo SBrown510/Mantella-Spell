@@ -7,3 +7,5 @@
 *.pex
 SKSE/Plugins/MantellaSoftware/
 GPT_SECRET_KEY.txt
+skyrimse.ppj
+.vscode/tasks.json
