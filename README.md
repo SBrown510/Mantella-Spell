@@ -16,6 +16,8 @@ This repository is for the Mantella spell mod, which handles the Skyrim-side log
 
 - The latest version of the Mantella SKSE Launcher (used to start Mantella.exe when Skyrim is launched) can be found [here](https://github.com/art-from-the-machine/Mantella-SKSE-Launcher/releases) (the version in this repo is out of date).
 
+- The latest version of powerofthree's Papyrus Extender (used to determine followers for adventure dialogue) can be found here [here] (https://www.nexusmods.com/skyrimspecialedition/mods/22854)
+
 # Relevant Links
 
 The source code for the subtitles plugin can be found [here](https://github.com/swwu/Mantella-Subtitles-Plugin-NG).
