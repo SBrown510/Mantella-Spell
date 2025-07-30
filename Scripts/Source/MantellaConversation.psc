@@ -84,6 +84,12 @@ function StartConversation(Actor[] actorsToStartConversationWith)
     
     SKSE_HTTP.setString(handle, mConsts.KEY_REQUESTTYPE, mConsts.KEY_REQUESTTYPE_STARTCONVERSATION)
     SKSE_HTTP.setString(handle, mConsts.KEY_STARTCONVERSATION_WORLDID, PlayerRef.GetDisplayName() + repository.worldID)
+
+    if repository.npcToPlayerConv
+        SKSE_HTTP.setBool(handle, "mantella_adventure", true)
+        repository.npcToPlayerConv = False
+    endif
+    
     BuildContext(true)
     AddCurrentActorsAndContext(handle, true)
 

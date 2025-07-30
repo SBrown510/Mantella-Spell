@@ -1,5 +1,7 @@
 Scriptname MantellaListenerScript extends ReferenceAlias
 
+Import PO3_SKSEFunctions
+
 Spell property MantellaSpell auto
 Spell property MantellaPower auto;gia
 Spell Property MantellaEndSpell auto
@@ -127,59 +129,129 @@ endFunction
 
 event OnUpdate()
     if repository.radiantEnabled
-        ; If no Mantella conversation active
-        if !conversation.IsRunning()
-            ; MantellaActorList taken from this tutorial:
-            ; http://skyrimmw.weebly.com/skyrim-modding/detecting-nearby-actors-skyrim-modding-tutorial
-            MantellaActorPicker.start()
-
-            ; If at least two actors found
-            if (PotentialActor1.GetReference() as Actor) && (PotentialActor2.GetReference() as Actor)
-                Actor Actor1 = PotentialActor1.GetReference() as Actor
-                Actor Actor2 = PotentialActor2.GetReference() as Actor
-
-                ; First check if the player is close enough to the actors
-                float distanceFromPlayerToClosestActor = PlayerRef.GetDistance(Actor1)
-                float maxDistance = ConvertMeterToGameUnits(repository.radiantDistance)
-                if distanceFromPlayerToClosestActor <= maxDistance
-                    ; Then check the distance between actors
-                    float distanceBetweenActors = Actor1.GetDistance(Actor2)
-                    ; TODO: make distanceBetweenActors customisable
-                    if (distanceBetweenActors <= 1000)
-                        Actor[] actors = new Actor[5]
-                        actors[0] = Actor1
-                        actors[1] = Actor2
-
-                        ; Search for other potential actors to add
-                        if TryAddActorToParticipantsList(PotentialActor3, Actor1, 2, actors, 1000)
-                            if TryAddActorToParticipantsList(PotentialActor4, Actor1, 3, actors, 1000)
-                                if TryAddActorToParticipantsList(PotentialActor5, Actor1, 4, actors, 1000)
-                                    ; All actors added successfully
-                                endIf
-                            endIf
-                        endIf
-
-                        Debug.Notification("Starting conversation...")
-                        conversation.Start()
-                        conversation.StartConversation(actors)
-
-                    elseif(repository.showRadiantDialogueMessages)
-                        Debug.Notification("Radiant dialogue attempted. No NPCs available")
-                    endIf
-                elseif(repository.showRadiantDialogueMessages)
-                    Debug.Notification("Radiant dialogue attempted. NPCs too far away at " + ConvertGameUnitsToMeter(distanceFromPlayerToClosestActor) + " meters")
-                    Debug.Notification("Max distance set to " + repository.radiantDistance + "m in Mantella MCM")
-                endIf
-            elseif(repository.showRadiantDialogueMessages)
-                Debug.Notification("Radiant dialogue attempted. No NPCs available")
-            endIf
-
-            MantellaActorPicker.stop()
-        endIf
+        tryRadiantDialogue()
+    elseif repository.adventureEnabled
+        int roll = Utility.RandomInt(0, 1) ; 0 = adventure, 1 = Do nothing; to be fleshed out with some chatty attribute that can be set for NPCs
+        if roll == 0
+            tryadventureEnabled()
+        endif
     endIf
     RegisterForSingleUpdate(repository.radiantFrequency)
 endEvent
 
+Event tryRadiantDialogue()
+    ; If no Mantella conversation active
+    if !conversation.IsRunning()
+        ; MantellaActorList taken from this tutorial:
+        ; http://skyrimmw.weebly.com/skyrim-modding/detecting-nearby-actors-skyrim-modding-tutorial
+        MantellaActorPicker.start()
+
+        ; If at least two actors found
+        if (PotentialActor1.GetReference() as Actor) && (PotentialActor2.GetReference() as Actor)
+            Actor Actor1 = PotentialActor1.GetReference() as Actor
+            Actor Actor2 = PotentialActor2.GetReference() as Actor
+
+            ; First check if the player is close enough to the actors
+            float distanceFromPlayerToClosestActor = PlayerRef.GetDistance(Actor1)
+            float maxDistance = ConvertMeterToGameUnits(repository.radiantDistance)
+            if distanceFromPlayerToClosestActor <= maxDistance
+                ; Then check the distance between actors
+                float distanceBetweenActors = Actor1.GetDistance(Actor2)
+                ; TODO: make distanceBetweenActors customisable
+                if (distanceBetweenActors <= 1000)
+                    Actor[] actors = new Actor[5]
+                    actors[0] = Actor1
+                    actors[1] = Actor2
+
+                    ; Search for other potential actors to add
+                    if TryAddActorToParticipantsList(PotentialActor3, Actor1, 2, actors, 1000)
+                        if TryAddActorToParticipantsList(PotentialActor4, Actor1, 3, actors, 1000)
+                            if TryAddActorToParticipantsList(PotentialActor5, Actor1, 4, actors, 1000)
+                                ; All actors added successfully
+                            endIf
+                        endIf
+                    endIf
+
+                    Debug.Notification("Starting conversation...")
+                    conversation.Start()
+                    conversation.StartConversation(actors)
+
+                elseif(repository.showRadiantDialogueMessages)
+                    Debug.Notification("Radiant dialogue attempted. No NPCs available")
+                endIf
+            elseif(repository.showRadiantDialogueMessages)
+                Debug.Notification("Radiant dialogue attempted. NPCs too far away at " + ConvertGameUnitsToMeter(distanceFromPlayerToClosestActor) + " meters")
+                Debug.Notification("Max distance set to " + repository.radiantDistance + "m in Mantella MCM")
+            endIf
+        elseif(repository.showRadiantDialogueMessages)
+            Debug.Notification("Radiant dialogue attempted. No NPCs available")
+        endIf
+
+        MantellaActorPicker.stop()
+    endIf
+EndEvent
+
+Event tryadventureEnabled()
+    if !(conversation.IsRunning() || Game.GetPlayer().IsInCombat() || UI.IsMenuOpen("Dialogue Menu")) 
+        Actor[] followers = PO3_SKSEFunctions.GetPlayerFollowers()
+        Actor chosenFollower = None
+
+        if followers.Length == 0
+            Debug.Notification("Adventure Dialogue Attempted: No followers found.")
+            return
+
+        elseif followers.Length == 1
+            Actor a = followers[0]
+                if a && a.Is3DLoaded() && a.IsPlayerTeammate() && !a.IsInCombat() && !a.IsDead()
+                    chosenFollower = a
+                    Debug.Notification("Adventure Dialogue: Selected follower: " + chosenFollower.GetDisplayName())
+                else
+                    Debug.Notification("Adventure Dialogue: No valid available followers available")
+                    return
+                endif
+                
+        else
+            ; Multi-follower case — build list of valid followers
+            Form[] validFollowerForms = Utility.CreateFormArray(0)
+            int i = 0
+            while i < followers.Length
+                Actor a = followers[i]
+                if a && a.Is3DLoaded() && a.IsPlayerTeammate() && !a.IsInCombat() && !a.IsDead()
+                    validFollowerForms = Utility.ResizeFormArray(validFollowerForms, validFollowerForms.Length + 1)
+                    validFollowerForms[validFollowerForms.Length - 1] = a as Form
+                endif
+                i += 1
+            endwhile
+
+            if validFollowerForms.Length == 0
+                Debug.Notification("Adventure Dialogue: No valid followers available.")
+                return
+            endif
+
+            int index = Utility.RandomInt(0, validFollowerForms.Length - 1)
+            chosenFollower = validFollowerForms[index] as Actor
+            Debug.Notification("Adventure Dialogue: Selected follower " + chosenFollower.GetDisplayName())
+        endif
+
+        if chosenFollower == None
+            Debug.Notification("Adventure Dialogue: An unexpected error has occured, no followers found.")
+            return
+        endif
+
+        ; Start conversation with player and chosen follower
+        Actor[] convo = new Actor[2]
+        convo[0] = Game.GetPlayer()
+        convo[1] = chosenFollower
+
+        repository.npcToPlayerConv = true
+
+        conversation.Start()
+        conversation.StartConversation(convo)
+        Debug.Trace(chosenFollower.GetDisplayName() + " started a conversation with the player.")
+    else
+        Debug.Notification("Adventure Dialogue Attempted.")
+    endif
+EndEvent
 
 ;All the event listeners  below have 'if' clauses added after Mantella 0.9.2 (except ondying)
 Event OnItemAdded(Form akBaseItem, int aiItemCount, ObjectReference akItemReference, ObjectReference akSourceContainer)

@@ -29,6 +29,10 @@ function RightColumn(MantellaMCM mcm, MantellaRepository Repository) global
     mcm.oid_radiantfrequency = mcm.AddSliderOption("Trigger Frequency",repository.radiantFrequency)
     mcm.oid_showRadiantDialogueMessages = mcm.AddToggleOption("Show Debug Messages", repository.showRadiantDialogueMessages)
 
+    mcm.AddHeaderOption("Adventure Dialogue (Experimental)")
+        mcm.oid_adventureEnabled = mcm.AddToggleOption("Enabled", repository.adventureEnabled)
+        mcm.AddTextOption("-Note: This leverages radiant frequency for trigger-", "")
+
     mcm.AddHeaderOption("NPC Actions")
 	mcm.oid_AllowForNPCtoFollowToggle = mcm.AddToggleOption("Allow Follow (Experimental)", Repository.AllowForNPCtoFollow)
 	mcm.oid_NPCAngerToggle = mcm.AddToggleOption("Allow Aggro", Repository.NPCAnger)
@@ -128,6 +132,17 @@ function OptionUpdate(MantellaMCM mcm, int optionID, MantellaRepository Reposito
     elseIf optionID == mcm.oid_radiantenabled
         repository.radiantEnabled =! repository.radiantEnabled
         mcm.SetToggleOptionValue(mcm.oid_radiantenabled, repository.radiantEnabled)
+        if repository.radiantEnabled
+            repository.adventureEnabled = false
+            mcm.SetToggleOptionValue(mcm.oid_adventureEnabled, false)
+        endif
+    elseif optionID == mcm.oid_adventureEnabled
+        repository.adventureEnabled =! repository.adventureEnabled
+        mcm.SetToggleOptionValue(mcm.oid_adventureEnabled, repository.adventureEnabled)
+        if repository.adventureEnabled
+            repository.radiantEnabled = false
+            mcm.SetToggleOptionValue(mcm.oid_radiantenabled, false)
+        endif
     elseIf optionID == mcm.oid_showRadiantDialogueMessages
         repository.showRadiantDialogueMessages =! repository.showRadiantDialogueMessages
         mcm.SetToggleOptionValue(optionID, repository.showRadiantDialogueMessages)
